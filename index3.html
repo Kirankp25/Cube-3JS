@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Continuous Spinning Cube</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+
+<body>
+  <div id="scene-container"></div>
+
+  <script>
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(25, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer();
+
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.getElementById('scene-container').appendChild(renderer.domElement);
+
+    // Visible edges and corners material
+    const edgeMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
+
+    // Opaque sides material
+    const sideMaterial = new THREE.MeshLambertMaterial({ color: 0x004d00 });
+
+    // Combine materials for different faces
+    const materials = [
+      sideMaterial, // Right
+      sideMaterial, // Left
+      sideMaterial, // Top
+      sideMaterial, // Bottom
+      sideMaterial, // Front
+      sideMaterial  // Back
+    ];
+
+    const geometry = new THREE.BoxGeometry();
+    const cube = new THREE.Mesh(geometry, materials);
+    scene.add(cube);
+
+    // Adjusting the position of the cube
+    cube.position.set(0, 0, -5);
+
+    camera.position.z = 40;
+
+    // Add ambient light
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+    scene.add(ambientLight);
+
+    // Add directional light
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.7);
+    directionalLight.position.set(5, 5, 5);
+    scene.add(directionalLight);
+
+    let isMouseDown = false;
+    let previousMousePosition = { x: 0, y: 0 };
+
+    document.addEventListener('mousedown', (event) => {
+      isMouseDown = true;
+      previousMousePosition = { x: event.clientX, y: event.clientY };
+    });
+
+    document.addEventListener('mouseup', () => {
+      isMouseDown = false;
+    });
+
+    document.addEventListener('mousemove', (event) => {
+      if (isMouseDown) {
+        const delta = {
+          x: event.clientX - previousMousePosition.x,
+          y: event.clientY - previousMousePosition.y
+        };
+
+        cube.rotation.x += delta.y * 0.01;
+        cube.rotation.y += delta.x * 0.01;
+
+        previousMousePosition = { x: event.clientX, y: event.clientY };
+      }
+    });
+
+    const animate = function () {
+      requestAnimationFrame(animate);
+
+      // Continuous rotatio2
+      cube.rotation.x += 0.02;
+      cube.rotation.y += 0.02;
+      cube.rotation.z += 0.02;
+
+      renderer.render(scene, camera);
+    };
+
+    window.addEventListener('resize', function () {
+      const newWidth = window.innerWidth;
+      const newHeight = window.innerHeight;
+
+      camera.aspect = newWidth / newHeight;
+      camera.updateProjectionMatrix();
+
+      renderer.setSize(newWidth, newHeight);
+    });
+
+    animate();
+  </script>
+</body>
+
+</html>
